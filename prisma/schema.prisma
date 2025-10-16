@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------
+// ENUMS
+// -----------------------------
+enum Role {
+  USER
+  ADMIN
+}
+
+// -----------------------------
+// MODELS
+// -----------------------------
+
+model AppUser {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+
+  wallets UserWallet[]
+  reviews Review[]
+}
+
+model UserWallet {
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  address    String
+  verifiedAt DateTime?
+  siweNonce  String?
+
+  user AppUser @relation(fields: [userId], references: [id])
+
+  @@unique([userId, address])
+  @@index([address])
+}
+
+model Category {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  points Point[]
+}
+
+model Point {
+  id                Int      @id @default(autoincrement()) // pointId canônico
+  name              String
+  description       String?
+  city              String
+  country           String
+  photoUrl          String?
+  categoryId        Int?
+  onchainRegistered Boolean  @default(false)
+  onchainTxHash     String?
+  createdAt         DateTime @default(now())
+
+  category Category? @relation(fields: [categoryId], references: [id])
+  reviews  Review[]
+  sbtMints SbtMint[] // relação com SbtMint.point
+}
+
+model Review {
+  id            Int      @id @default(autoincrement())
+  pointId       Int
+  userId        Int
+  walletAddress String
+  rating        Int // 0..10 (validar no app)
+  comment       String?
+  commentCid    String? // se usar IPFS
+  reviewHash    String
+  onchainTxHash String?
+  confirmed     Boolean  @default(false)
+  blockNumber   BigInt?
+  createdAt     DateTime @default(now())
+
+  point Point   @relation(fields: [pointId], references: [id])
+  user  AppUser @relation(fields: [userId], references: [id])
+
+  @@unique([pointId, walletAddress]) // 1 review por carteira/ponto
+  @@index([userId])
+  @@index([pointId])
+  @@index([walletAddress])
+}
+
+model SbtMint {
+  id            Int       @id @default(autoincrement())
+  tokenId       String // use string para uint256
+  walletAddress String
+  pointId       Int
+  onchainTxHash String?
+  mintedAt      DateTime?
+
+  point Point @relation(fields: [pointId], references: [id])
+
+  @@index([walletAddress])
+}
