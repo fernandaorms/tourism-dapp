@@ -16,7 +16,7 @@ const mockPoints: PointCardProps[] = [
     { id: 2, name: "Museu do Amanhã", city: "Rio de Janeiro", country: "Brasil", description: "Museu de ciências aplicadas.", category: { id: 4, name: "Museu" }, ratingAvg: 9.1, ratingCount: 203, photoUrl: "/placeholder.jpg" },
 ];
 
-export default function Home() {
+export default function PointsPage() {
     const [query, setQuery] = useState("");
     const [filters, setFilters] = useState<FiltersState>({});
     const [items, setItems] = useState<PointCardProps[]>(mockPoints);

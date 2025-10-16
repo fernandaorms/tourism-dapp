@@ -13,7 +13,7 @@ export function Header() {
 
     const nav = [
         { href: '/', label: 'Início' },
-        { href: '/points', label: 'Pontos' },
+        { href: '/pontos', label: 'Pontos' },
         { href: '/tokens', label: 'Tokens' },
     ];
 
