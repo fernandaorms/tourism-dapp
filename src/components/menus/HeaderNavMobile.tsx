@@ -29,7 +29,6 @@ export function HeaderNavMobile({ nav, isLogged, role }: Props) {
                 </Button>
             </SheetTrigger>
 
-            {/* 👇 vira um layout em coluna ocupando a altura inteira */}
             <SheetContent side='right' className='p-0 flex h-full flex-col'>
                 <SheetHeader className='p-4'>
                     <SheetTitle>
@@ -37,9 +36,7 @@ export function HeaderNavMobile({ nav, isLogged, role }: Props) {
                     </SheetTitle>
                 </SheetHeader>
 
-                {/* conteúdo “rolável” do meio */}
                 <div className='flex-1 overflow-y-auto p-4'>
-                    {/* Navegação principal */}
                     <nav className='grid gap-2'>
                         {nav.map((item) => (
                             <Link
@@ -53,23 +50,22 @@ export function HeaderNavMobile({ nav, isLogged, role }: Props) {
                         ))}
                     </nav>
 
-                    <div className='my-3 h-px bg-border' />
+                    <div className='my-6 h-px bg-border' />
 
-                    {/* Ações por estado de sessão (tudo menos o logout) */}
                     {!isLogged ? (
                         <div className='grid gap-2'>
                             <Button asChild variant='outline' onClick={() => setOpen(false)}>
                                 <Link href='/login'>Entrar</Link>
                             </Button>
+
                             <Button asChild onClick={() => setOpen(false)} className='w-full'>
                                 <Link href='/signup'>Criar conta</Link>
                             </Button>
                         </div>
                     ) : (
                         <div className='grid gap-2'>
-                            <div className='px-3'>
-                                <WalletButton className='w-full' />
-                            </div>
+                            <WalletButton className='w-full' />
+
                             <Link
                                 href='/perfil'
                                 onClick={() => setOpen(false)}
@@ -78,15 +74,6 @@ export function HeaderNavMobile({ nav, isLogged, role }: Props) {
                                 <UserIcon className='h-4 w-4' />
                                 Meu perfil
                             </Link>
-                            {role === 'ADMIN' && (
-                                <Link
-                                    href='/admin'
-                                    onClick={() => setOpen(false)}
-                                    className='rounded-md px-3 py-2 text-sm hover:bg-accent'
-                                >
-                                    Admin
-                                </Link>
-                            )}
                         </div>
                     )}
                 </div>

@@ -18,10 +18,11 @@ export async function Header() {
     const role = (session?.user as any)?.role as 'USER' | 'ADMIN' | undefined;
 
     const nav = [
-        { href: '/', label: 'Início' },
-        { href: '/pontos', label: 'Pontos' },
+        { href: '/', label: 'Explorar' },
         { href: '/tokens', label: 'Tokens' },
     ];
+
+    if (session?.user?.role === 'ADMIN') nav.push({ href: '/admin', label: 'Administrador' });
 
     return (
         <header className='sticky top-0 z-40 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60'>

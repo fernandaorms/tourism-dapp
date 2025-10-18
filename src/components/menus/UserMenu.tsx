@@ -34,7 +34,7 @@ export function UserMenu({ username }: { username?: string | null }) {
                     onClick={() => signOut({ redirect: true, callbackUrl: '/' })}
                     className='text-destructive focus:text-destructive'
                 >
-                    <LogOut className='mr-2 h-4 w-4' />
+                    <LogOut className='mr-2 h-4 w-4 text-destructive' />
                     Logout
                 </DropdownMenuItem>
             </DropdownMenuContent>

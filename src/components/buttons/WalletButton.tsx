@@ -12,7 +12,7 @@ export function WalletButton({ className }: Props) {
     return (
         <Button
             variant='default'
-            className={cn('gap-2 bg-blue-500 hover:bg-blue-600 text-white', className)}
+            className={cn('gap-2', className)}
         >
             <Wallet className='h-4 w-4' />
             Conectar carteira
