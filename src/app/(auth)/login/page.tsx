@@ -34,9 +34,12 @@ export default function LoginPage() {
             const res = await loginAction(values);
 
             if (res.success) {
-                toast.success('Login efetuado com sucesso!');
+                toast.success('Login efetuado com sucesso! Você será redirecionado em instantes.');
 
-                setTimeout(() => router.push('/'), 1000);
+                setTimeout(() => {
+                    router.replace('/');
+                    router.refresh();
+                }, 1000);
             } else {
                 toast.error(res.message);
             }

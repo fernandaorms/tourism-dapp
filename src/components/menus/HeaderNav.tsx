@@ -17,7 +17,7 @@ export function HeaderNav({ nav }: Props) {
     const pathname = usePathname();
 
     return (
-        <nav className='hidden md:block'>
+        <nav className='hidden lg:block'>
             <NavigationMenu>
                 <NavigationMenuList>
                     {nav.map((item) => (

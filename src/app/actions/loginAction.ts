@@ -17,7 +17,7 @@ export async function loginAction(input: unknown) {
             password,
             redirect: false,
         });
-
+        
         return { success: true };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {

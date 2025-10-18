@@ -3,13 +3,19 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { HeaderNav } from '../menus/HeaderNav';
 import { HeaderNavMobile } from '../menus/HeaderNavMobile';
-import { LogoutButton } from '../buttons/LogoutButton';
+import { UserMenu } from '../menus/UserMenu';
+import { WalletButton } from '../buttons/WalletButton';
 
 
 export async function Header() {
     const session = await auth();
 
     console.log(session);
+
+    const isLogged = Boolean(session?.user);
+    const username = session?.user?.name ?? '';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const role = (session?.user as any)?.role as 'USER' | 'ADMIN' | undefined;
 
     const nav = [
         { href: '/', label: 'Início' },
@@ -28,19 +34,31 @@ export async function Header() {
                     <HeaderNav nav={nav} />
                 </div>
 
-                <div className='hidden items-center gap-2 md:flex'>
-                    <Button asChild variant='ghost'>
-                        <Link href='/login'>Entrar</Link>
-                    </Button>
+                <div className='hidden items-center gap-2 lg:flex'>
+                    {!session?.user ? (
+                        <>
+                            <Button asChild variant='ghost'>
+                                <Link href='/login'>Entrar</Link>
+                            </Button>
 
-                    <Button asChild>
-                        <Link href='/signup'>Criar conta</Link>
-                    </Button>
-
-                    <LogoutButton />
+                            <Button asChild>
+                                <Link href='/signup'>Criar conta</Link>
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <WalletButton />
+                            <UserMenu username={session.user.name} />
+                        </>
+                    )}
                 </div>
 
-                <HeaderNavMobile nav={nav} />
+                <HeaderNavMobile
+                    nav={nav}
+                    isLogged={isLogged}
+                    username={username}
+                    role={role}
+                />
             </div>
         </header>
     );
