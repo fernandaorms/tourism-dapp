@@ -33,6 +33,7 @@ type SignupValues = z.infer<typeof signupSchema>;
 export default function SignupPage() {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
+
     const form = useForm<SignupValues>({
         resolver: zodResolver(signupSchema),
         defaultValues: { email: '', username: '', password: '', confirm: '' },
@@ -45,9 +46,9 @@ export default function SignupPage() {
 
                 const result = await signupAction({ email, username, password });
 
-                toast.success(`Conta criada com sucesso! Você será redirecionado para o login em instantes.`);
+                toast.success(`Conta criada com sucesso! Faça login para prosseguir.`);
 
-                setTimeout(() => router.push("/login"), 1000);
+                setTimeout(() => router.push('/login'), 1000);
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (e: any) {
                 toast.error(e?.message ?? 'Erro ao criar conta');

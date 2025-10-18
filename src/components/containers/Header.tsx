@@ -1,15 +1,15 @@
-'use client';
+import { auth } from '@/auth'
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { NavigationMenu, NavigationMenuItem, NavigationMenuList } from '@/components/ui/navigation-menu';
-import { Menu } from 'lucide-react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { HeaderNav } from '../menus/HeaderNav';
+import { HeaderNavMobile } from '../menus/HeaderNavMobile';
+import { LogoutButton } from '../buttons/LogoutButton';
 
 
-export function Header() {
-    const pathname = usePathname();
+export async function Header() {
+    const session = await auth();
+
+    console.log(session);
 
     const nav = [
         { href: '/', label: 'Início' },
@@ -25,25 +25,7 @@ export function Header() {
                         Tourism<span className='text-primary'>DApp</span>
                     </Link>
 
-                    <nav className='hidden md:block'>
-                        <NavigationMenu>
-                            <NavigationMenuList>
-                                {nav.map((item) => (
-                                    <NavigationMenuItem key={item.href}>
-                                        <Link
-                                            href={item.href}
-                                            className={cn(
-                                                'rounded-md px-3 py-2 text-sm font-medium transition-colors hover:text-primary',
-                                                pathname === item.href ? 'text-primary' : 'text-muted-foreground'
-                                            )}
-                                        >
-                                            {item.label}
-                                        </Link>
-                                    </NavigationMenuItem>
-                                ))}
-                            </NavigationMenuList>
-                        </NavigationMenu>
-                    </nav>
+                    <HeaderNav nav={nav} />
                 </div>
 
                 <div className='hidden items-center gap-2 md:flex'>
@@ -54,40 +36,11 @@ export function Header() {
                     <Button asChild>
                         <Link href='/signup'>Criar conta</Link>
                     </Button>
+
+                    <LogoutButton />
                 </div>
 
-                {/* Mobile */}
-                <Sheet>
-                    <SheetTrigger asChild>
-                        <Button variant='ghost' size='icon' className='md:hidden' aria-label='Abrir menu'>
-                            <Menu className='h-5 w-5' />
-                        </Button>
-                    </SheetTrigger>
-
-                    <SheetContent side='right'>
-                        <SheetHeader>
-                            <SheetTitle>Menu</SheetTitle>
-                        </SheetHeader>
-
-                        <div className='mt-4 grid gap-2 p-4'>
-                            {nav.map((item) => (
-                                <Link key={item.href} href={item.href} className='rounded-md px-3 py-2 text-sm hover:bg-accent'>
-                                    {item.label}
-                                </Link>
-                            ))}
-
-                            <div className='mt-4 grid gap-2'>
-                                <Button asChild variant='outline'>
-                                    <Link href='/login'>Entrar</Link>
-                                </Button>
-
-                                <Button asChild>
-                                    <Link href='/signup'>Criar conta</Link>
-                                </Button>
-                            </div>
-                        </div>
-                    </SheetContent>
-                </Sheet>
+                <HeaderNavMobile nav={nav} />
             </div>
         </header>
     );
