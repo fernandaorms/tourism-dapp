@@ -42,7 +42,7 @@ export function WalletConnectButton({
             <Button
                 onClick={() => connect({ connector: injected() })}
                 disabled={isBusy}
-                className={`gap-2 bg-emerald-500 hover:bg-emerald-600 text-white ${className ?? ''}`}
+                className={`gap-2 bg-sky-500 hover:bg-sky-600 text-white ${className ?? ''}`}
             >
                 <Wallet className='h-4 w-4' />
                 {isBusy ? 'Conectando…' : 'Conectar carteira'}

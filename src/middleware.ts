@@ -6,7 +6,8 @@ export const config = {
         '/login',
         '/signup',
         '/admin',
-        '/perfil'
+        '/perfil',
+        '/tokens'
     ]
 };
 
@@ -15,12 +16,12 @@ export default auth((req) => {
 
     if (req.nextUrl.pathname.startsWith('/login')) {
         if (user?.id) return NextResponse.redirect(new URL("/", req.nextUrl.origin));
-         return NextResponse.next();
+        return NextResponse.next();
     }
 
     if (req.nextUrl.pathname.startsWith('/signup')) {
         if (user?.id) return NextResponse.redirect(new URL("/", req.nextUrl.origin));
-         return NextResponse.next();
+        return NextResponse.next();
     }
 
     // Block access - not auth user

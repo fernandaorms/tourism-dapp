@@ -1,10 +1,9 @@
-// config/wagmi.ts
-import { http, createConfig } from 'wagmi'
+import { http, createConfig, cookieStorage, createStorage } from 'wagmi'
 import { sepolia } from 'wagmi/chains'
 
 export const wagmiConfig = createConfig({
     chains: [sepolia],
-    transports: {
-        [sepolia.id]: http(), // endpoint público; suficiente para conectar carteira
-    },
+    transports: { [sepolia.id]: http() },
+    ssr: true,
+    storage: createStorage({ storage: cookieStorage }),
 })

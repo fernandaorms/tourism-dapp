@@ -3,8 +3,8 @@
 
 import { useEffect, useState } from 'react';
 import { Hero } from '@/components/containers/Hero';
-import { PointCard, type PointCardProps } from '@/components/layout/PointCard';
-import { FiltersBar, type FiltersState } from '@/components/layout/FiltersBar'; // <— novo
+import { PointCard, type PointCardProps } from '@/components/cards/PointCard';
+import { FiltersBar, type FiltersState } from '@/components/layout/FiltersBar';
 
 type Category = { id: number; name: string };
 

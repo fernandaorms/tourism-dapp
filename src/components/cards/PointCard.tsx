@@ -34,7 +34,7 @@ export function PointCard(p: PointCardProps) {
                 <Link href={`/ponto/${p.id}`} aria-label={`Ver ${p.name}`} className='hover:underline w-fit'>
                     <h3 className='text-lg font-semibold leading-tight line-clamp-1'>{p.name}</h3>
                 </Link>
-                
+
                 <div className='flex items-center gap-2 text-sm text-muted-foreground'>
                     <MapPin className='h-4 w-4' />
                     <span>{p.city}, {p.country}</span>
@@ -44,7 +44,7 @@ export function PointCard(p: PointCardProps) {
             <CardContent>
                 {p.description && <p className='line-clamp-3 text-sm text-muted-foreground'>{p.description}</p>}
             </CardContent>
-            
+
             <CardFooter className='flex items-center justify-between text-sm'>
                 <div className='flex items-center gap-2'>
                     <RatingStars rating={Math.round((p.ratingAvg ?? 0) * 10) / 10} />
