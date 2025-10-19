@@ -1,4 +1,3 @@
-// app/point/[id]/page.tsx
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import { prisma } from '@/lib/prisma'
@@ -33,7 +32,6 @@ export default async function PointPage({ params }: { params: { id: string } }) 
 
     return (
         <div className='flex flex-col'>
-            {/* Banner */}
             <div className='relative h-72 md:h-96 w-full'>
                 <Image
                     src={point.photoUrl}

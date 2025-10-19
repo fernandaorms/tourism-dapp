@@ -26,8 +26,8 @@ export function ReviewForm({
     defaultRating = 8,
 }: {
     onSubmitReview: (data: Values) => Promise<SubmitResult> | SubmitResult;
-    isConnected?: boolean; // controla apenas o botão
-    isMounted?: boolean;   // evita 'flash' e mostra skeleton até montar
+    isConnected?: boolean;
+    isMounted?: boolean;
     defaultRating?: number;
 }) {
     const [isPending, startTransition] = useTransition();
@@ -46,7 +46,7 @@ export function ReviewForm({
                 }
                 toast.success('Avaliação enviada');
                 form.reset({ rating: defaultRating, comment: '' });
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (e: any) {
                 toast.error(e?.message ?? 'Erro ao enviar avaliação');
             }
@@ -87,7 +87,6 @@ export function ReviewForm({
                     )}
                 />
 
-                {/* Botão ou Skeleton, conforme montagem */}
                 {isMounted ? (
                     <>
                         <Button type='submit' disabled={disabled}>

@@ -9,8 +9,7 @@ import { injected } from 'wagmi/connectors';
 import { useMounted } from '@/hooks/useMounted';
 
 type Props = {
-    compact?: boolean;         // Header: compacto (pill + botão de sair)
-    showDisconnect?: boolean;  // esconder/mostrar o botão de sair no modo compacto
+    compact?: boolean;
     className?: string;
 };
 
@@ -26,7 +25,6 @@ export function WalletConnectButton({
 
     const isBusy = isPending || status === 'connecting' || status === 'reconnecting';
 
-    // 🔹 Skeleton até montar (evita 'flash' entre estados)
     if (!mounted) {
         if (compact) {
             return (
@@ -39,7 +37,6 @@ export function WalletConnectButton({
         return <Skeleton className={`h-10 w-full rounded-md ${className ?? ''}`} />;
     }
 
-    // 🔹 Desconectado
     if (!isConnected) {
         return (
             <Button
@@ -53,7 +50,6 @@ export function WalletConnectButton({
         );
     }
 
-    // 🔹 Conectado
     if (compact) {
         return (
             <div className={`flex items-center gap-2 ${className ?? ''}`}>
@@ -65,8 +61,7 @@ export function WalletConnectButton({
             </div>
         );
     }
-
-    // 🔹 Versão padrão (ex.: sidebar do ponto)
+    
     return (
         <div className={`flex flex-wrap items-center gap-3 ${className ?? ''}`}>
             <WalletPill />

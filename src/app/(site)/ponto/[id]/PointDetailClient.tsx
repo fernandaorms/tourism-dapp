@@ -59,12 +59,11 @@ export function PointDetailClient({
         return { ok: true };
     }
 
-    // Skeleton do bloco logado (wallet + botão do form) enquanto monta / carrega sessão
     const showAuthSkeleton = !mounted || sessionStatus === 'loading';
 
     return (
         <div className='grid gap-8 md:grid-cols-[1fr_minmax(280px,360px)]'>
-            {/* Esquerda: descrição + avaliações */}
+
             <div className='grid gap-8'>
                 <section>
                     <h2 className='text-lg font-semibold'>Descrição</h2>
@@ -89,40 +88,38 @@ export function PointDetailClient({
                 </section>
             </div>
 
-            {/* Direita: sidebar */}
             <aside className='md:pl-4 lg:pl-8'>
                 <div className='sticky top-24 rounded-lg border p-4'>
                     <h3 className='text-base font-semibold'>Deixe sua avaliação</h3>
 
-                    {/* Estado: sessão ainda carregando (ou aguardando hidratar) → skeletons */}
                     {showAuthSkeleton ? (
                         <div className='mt-3 grid gap-3'>
-                            {/* skeleton do WalletConnectButton */}
                             <Skeleton className='h-10 w-full rounded-md' />
-                            {/* skeleton do botão do form */}
+
                             <Skeleton className='h-24 w-full rounded-md' />
+
                             <Skeleton className='h-10 w-full rounded-md' />
+
                             <p className='mt-2 text-xs text-muted-foreground'>
                                 Carregando sessão…
                             </p>
                         </div>
                     ) : !isLoggedIn ? (
-                        // Não logado
                         <div className='mt-3 text-sm'>
                             <p className='text-muted-foreground'>
                                 Você precisa estar logado para avaliar este ponto.
                             </p>
+
                             <Button asChild className='mt-3 w-full'>
                                 <Link href='/login'>Fazer login</Link>
                             </Button>
+
                             <p className='mt-2 text-xs text-muted-foreground'>
                                 Após o login, conecte sua carteira MetaMask (Sepolia) e envie sua avaliação.
                             </p>
                         </div>
                     ) : (
-                        // Logado
                         <div className='mt-3 grid gap-3'>
-                            {/* O WalletConnectButton já tem skeleton interno para o estado 'não montado' */}
                             <WalletConnectButton className='w-full' />
 
                             <ReviewForm
