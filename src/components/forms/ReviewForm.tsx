@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
+import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 
 const schema = z.object({
@@ -21,10 +22,12 @@ type SubmitResult = { ok: boolean; message?: string };
 export function ReviewForm({
     onSubmitReview,
     isConnected = true,
+    isMounted = true,
     defaultRating = 8,
 }: {
     onSubmitReview: (data: Values) => Promise<SubmitResult> | SubmitResult;
-    isConnected?: boolean;
+    isConnected?: boolean; // controla apenas o botão
+    isMounted?: boolean;   // evita 'flash' e mostra skeleton até montar
     defaultRating?: number;
 }) {
     const [isPending, startTransition] = useTransition();
@@ -37,12 +40,10 @@ export function ReviewForm({
         startTransition(async () => {
             try {
                 const res = await onSubmitReview(values);
-
                 if (!res?.ok) {
                     toast.error(res?.message ?? 'Erro ao enviar avaliação');
                     return;
                 }
-
                 toast.success('Avaliação enviada');
                 form.reset({ rating: defaultRating, comment: '' });
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -52,25 +53,21 @@ export function ReviewForm({
         });
     }
 
+    const disabled = isPending || !isMounted || !isConnected;
+
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(submit)} className="grid gap-4">
+            <form onSubmit={form.handleSubmit(submit)} className='grid gap-4'>
                 <FormField
                     control={form.control}
-                    name="rating"
+                    name='rating'
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Nota (0–10)</FormLabel>
                             <FormControl>
-                                <Slider
-                                    value={[field.value]}
-                                    min={0}
-                                    max={10}
-                                    step={1}
-                                    onValueChange={([v]) => field.onChange(v)}
-                                />
+                                <Slider value={[field.value]} min={0} max={10} step={1} onValueChange={([v]) => field.onChange(v)} />
                             </FormControl>
-                            <div className="text-xs text-muted-foreground">{field.value}</div>
+                            <div className='text-xs text-muted-foreground'>{field.value}</div>
                             <FormMessage />
                         </FormItem>
                     )}
@@ -78,27 +75,30 @@ export function ReviewForm({
 
                 <FormField
                     control={form.control}
-                    name="comment"
+                    name='comment'
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Comentário</FormLabel>
                             <FormControl>
-                                <Textarea placeholder="Conte sua experiência…" {...field} />
+                                <Textarea placeholder='Conte sua experiência…' {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
 
-                {/* 🔹 Botão desabilitado apenas se não conectado */}
-                <Button type="submit" disabled={isPending || !isConnected}>
-                    {isPending ? 'Enviando…' : 'Enviar avaliação'}
-                </Button>
-
-                {!isConnected && (
-                    <p className="text-xs text-muted-foreground">
-                        Conecte sua carteira para enviar a avaliação.
-                    </p>
+                {/* Botão ou Skeleton, conforme montagem */}
+                {isMounted ? (
+                    <>
+                        <Button type='submit' disabled={disabled}>
+                            {isPending ? 'Enviando…' : !isConnected ? 'Conecte a carteira' : 'Enviar avaliação'}
+                        </Button>
+                        {!isConnected && (
+                            <p className='text-xs text-muted-foreground'>Conecte sua carteira para enviar a avaliação.</p>
+                        )}
+                    </>
+                ) : (
+                    <Skeleton className='h-10 w-full rounded-md' />
                 )}
             </form>
         </Form>

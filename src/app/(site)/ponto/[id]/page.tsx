@@ -1,8 +1,8 @@
 // app/point/[id]/page.tsx
-import { notFound } from "next/navigation"
-import Image from "next/image"
-import { prisma } from "@/lib/prisma"
-import { PointDetailClient } from "./PointDetailClient"
+import { notFound } from 'next/navigation'
+import Image from 'next/image'
+import { prisma } from '@/lib/prisma'
+import { PointDetailClient } from './PointDetailClient'
 
 export default async function PointPage({ params }: { params: { id: string } }) {
     const pointId = Number(params.id)
@@ -14,7 +14,7 @@ export default async function PointPage({ params }: { params: { id: string } }) 
             id: true, name: true, description: true, city: true, country: true, photoUrl: true,
             category: { select: { id: true, name: true } },
             reviews: {
-                orderBy: { createdAt: "desc" },
+                orderBy: { createdAt: 'desc' },
                 select: {
                     id: true, rating: true, comment: true, createdAt: true,
                     onchainTxHash: true, walletAddress: true,
@@ -32,26 +32,26 @@ export default async function PointPage({ params }: { params: { id: string } }) 
         : 0
 
     return (
-        <div className="flex flex-col">
+        <div className='flex flex-col'>
             {/* Banner */}
-            <div className="relative h-72 md:h-96 w-full">
+            <div className='relative h-72 md:h-96 w-full'>
                 <Image
                     src={point.photoUrl}
                     alt={point.name}
                     fill
-                    className="object-cover"
+                    className='object-cover'
                     priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                <div className='absolute inset-0 bg-gradient-to-t from-black/40 to-transparent' />
             </div>
 
-            <div className="container mx-auto px-4 py-6 md:py-8">
-                <header className="mb-6">
-                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{point.name}</h1>
-                    <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+            <div className='container mx-auto px-4 py-6 md:py-8'>
+                <header className='mb-6'>
+                    <h1 className='text-2xl md:text-3xl font-bold tracking-tight'>{point.name}</h1>
+                    <div className='mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground'>
                         <span>{point.city}, {point.country}</span>
                         {point.category && (
-                            <span className="rounded-md border px-2 py-0.5">{point.category.name}</span>
+                            <span className='rounded-md border px-2 py-0.5'>{point.category.name}</span>
                         )}
                         <span>★ {ratingAvg} · {ratingCount} avaliações</span>
                     </div>

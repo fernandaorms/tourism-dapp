@@ -1,59 +1,79 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { WalletPill } from '@/components/layout/WalletPill';
 import { Wallet } from 'lucide-react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { injected } from 'wagmi/connectors';
+import { useMounted } from '@/hooks/useMounted';
+
+type Props = {
+    compact?: boolean;         // Header: compacto (pill + botão de sair)
+    showDisconnect?: boolean;  // esconder/mostrar o botão de sair no modo compacto
+    className?: string;
+};
 
 export function WalletConnectButton({
-    compact = false,          // Header: compacto (pill + pequeno botão de sair opcional)
-    showDisconnect = true,    // Mostrar/ocultar botão “Desconectar”
-}: {
-    compact?: boolean;
-    showDisconnect?: boolean;
-}) {
-    const { isConnected } = useAccount();
+    compact = false,
+    className,
+}: Props) {
+    const mounted = useMounted();
+
+    const { status, isConnected } = useAccount(); // 'connected' | 'connecting' | 'reconnecting' | 'disconnected'
     const { connect, isPending } = useConnect();
     const { disconnect } = useDisconnect();
 
+    const isBusy = isPending || status === 'connecting' || status === 'reconnecting';
+
+    // 🔹 Skeleton até montar (evita 'flash' entre estados)
+    if (!mounted) {
+        if (compact) {
+            return (
+                <div className={`flex items-center gap-2 ${className ?? ''}`}>
+                    <Skeleton className='h-8 w-28 rounded-full' />
+                    <Skeleton className='h-8 w-24 rounded-md' />
+                </div>
+            );
+        }
+        return <Skeleton className={`h-10 w-full rounded-md ${className ?? ''}`} />;
+    }
+
+    // 🔹 Desconectado
     if (!isConnected) {
         return (
             <Button
                 onClick={() => connect({ connector: injected() })}
-                disabled={isPending}
-                className='gap-2 bg-emerald-500 hover:bg-emerald-600 text-white'
+                disabled={isBusy}
+                className={`gap-2 bg-emerald-500 hover:bg-emerald-600 text-white ${className ?? ''}`}
             >
                 <Wallet className='h-4 w-4' />
-                {isPending ? 'Conectando…' : 'Conectar carteira'}
+                {isBusy ? 'Conectando…' : 'Conectar carteira'}
             </Button>
         );
     }
 
-    // Estado conectado
+    // 🔹 Conectado
     if (compact) {
         return (
-            <div className='flex items-center gap-2'>
+            <div className={`flex items-center gap-2 ${className ?? ''}`}>
                 <WalletPill />
-                {showDisconnect && (
-                    <Button variant='ghost' size='sm' onClick={() => disconnect()}>
-                        Desconectar
-                    </Button>
-                )}
+
+                <Button variant='ghost' size='sm' onClick={() => disconnect()}>
+                    Desconectar
+                </Button>
             </div>
         );
     }
 
-    // Versão “padrão” (ex.: sidebar do ponto)
+    // 🔹 Versão padrão (ex.: sidebar do ponto)
     return (
-        <div className='flex flex-wrap items-center gap-3'>
+        <div className={`flex flex-wrap items-center gap-3 ${className ?? ''}`}>
             <WalletPill />
 
-            {showDisconnect && (
-                <Button variant='ghost' onClick={() => disconnect()}>
-                    Desconectar
-                </Button>
-            )}
+            <Button variant='ghost' onClick={() => disconnect()}>
+                Desconectar
+            </Button>
         </div>
     );
 }

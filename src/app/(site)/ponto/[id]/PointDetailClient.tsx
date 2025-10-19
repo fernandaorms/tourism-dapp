@@ -8,6 +8,8 @@ import { ReviewForm } from '@/components/forms/ReviewForm';
 import { WalletConnectButton } from '@/components/buttons/WalletConnectButton';
 import { ReviewCard } from '@/components/cards/ReviewCard';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useMounted } from '@/hooks/useMounted';
 
 type ReviewItem = {
     id: number;
@@ -36,7 +38,10 @@ export function PointDetailClient({
         reviews: ReviewItem[];
     };
 }) {
-    const { data: session } = useSession();
+    const mounted = useMounted();
+
+    // status: 'loading' | 'authenticated' | 'unauthenticated'
+    const { data: session, status: sessionStatus } = useSession();
     const { isConnected } = useAccount();
     const chainId = useChainId();
 
@@ -48,43 +53,34 @@ export function PointDetailClient({
     const networkLabel = chainId === 11155111 ? 'Sepolia' : `Chain ${chainId ?? 'desconhecida'}`;
 
     function handleSubmitMock(values: { rating: number; comment: string }): SubmitResult {
-        if (!isLoggedIn) {
-            return { ok: false, message: 'Faça login para avaliar.' };
-        }
-        if (!isConnected) {
-            return { ok: false, message: 'Conecte sua carteira para avaliar.' };
-        }
-        if (chainId !== 11155111) {
-            return { ok: false, message: `Rede incorreta. Conecte-se à ${networkLabel}.` };
-        }
-
-        // mock de sucesso
+        if (!isLoggedIn) return { ok: false, message: 'Faça login para avaliar.' };
+        if (!isConnected) return { ok: false, message: 'Conecte sua carteira para avaliar.' };
+        if (chainId !== 11155111) return { ok: false, message: `Rede incorreta. Conecte-se à ${networkLabel}.` };
         return { ok: true };
     }
 
+    // Skeleton do bloco logado (wallet + botão do form) enquanto monta / carrega sessão
+    const showAuthSkeleton = !mounted || sessionStatus === 'loading';
+
     return (
-        <div className="grid gap-8 md:grid-cols-[1fr_minmax(280px,360px)]">
+        <div className='grid gap-8 md:grid-cols-[1fr_minmax(280px,360px)]'>
             {/* Esquerda: descrição + avaliações */}
-            <div className="grid gap-8">
+            <div className='grid gap-8'>
                 <section>
-                    <h2 className="text-lg font-semibold">Descrição</h2>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground whitespace-pre-line">
+                    <h2 className='text-lg font-semibold'>Descrição</h2>
+                    <p className='mt-2 text-sm leading-6 text-muted-foreground whitespace-pre-line'>
                         {point.description}
                     </p>
                 </section>
 
                 <section>
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-lg font-semibold">
-                            Avaliações ({ratingCount}) · ★ {ratingAvg}
-                        </h2>
+                    <div className='flex items-center justify-between'>
+                        <h2 className='text-lg font-semibold'>Avaliações ({ratingCount}) · ★ {ratingAvg}</h2>
                     </div>
 
-                    <div className="mt-4 grid gap-4">
+                    <div className='mt-4 grid gap-4'>
                         {reviews.length === 0 && (
-                            <p className="text-sm text-muted-foreground">
-                                Ainda não há avaliações para este ponto.
-                            </p>
+                            <p className='text-sm text-muted-foreground'>Ainda não há avaliações para este ponto.</p>
                         )}
                         {reviews.map((r) => (
                             <ReviewCard key={r.id} review={r} />
@@ -94,30 +90,48 @@ export function PointDetailClient({
             </div>
 
             {/* Direita: sidebar */}
-            <aside className="md:pl-4 lg:pl-8">
-                <div className="sticky top-24 rounded-lg border p-4">
-                    <h3 className="text-base font-semibold">Deixe sua avaliação</h3>
+            <aside className='md:pl-4 lg:pl-8'>
+                <div className='sticky top-24 rounded-lg border p-4'>
+                    <h3 className='text-base font-semibold'>Deixe sua avaliação</h3>
 
-                    {!isLoggedIn ? (
-                        <div className="mt-3 text-sm">
-                            <p className="text-muted-foreground">
+                    {/* Estado: sessão ainda carregando (ou aguardando hidratar) → skeletons */}
+                    {showAuthSkeleton ? (
+                        <div className='mt-3 grid gap-3'>
+                            {/* skeleton do WalletConnectButton */}
+                            <Skeleton className='h-10 w-full rounded-md' />
+                            {/* skeleton do botão do form */}
+                            <Skeleton className='h-24 w-full rounded-md' />
+                            <Skeleton className='h-10 w-full rounded-md' />
+                            <p className='mt-2 text-xs text-muted-foreground'>
+                                Carregando sessão…
+                            </p>
+                        </div>
+                    ) : !isLoggedIn ? (
+                        // Não logado
+                        <div className='mt-3 text-sm'>
+                            <p className='text-muted-foreground'>
                                 Você precisa estar logado para avaliar este ponto.
                             </p>
-                            <Button asChild className="mt-3 w-full">
-                                <Link href="/login">Fazer login</Link>
+                            <Button asChild className='mt-3 w-full'>
+                                <Link href='/login'>Fazer login</Link>
                             </Button>
-                            <p className="mt-2 text-xs text-muted-foreground">
+                            <p className='mt-2 text-xs text-muted-foreground'>
                                 Após o login, conecte sua carteira MetaMask (Sepolia) e envie sua avaliação.
                             </p>
                         </div>
                     ) : (
-                        <div className="mt-3 grid gap-3">
-                            <WalletConnectButton />
+                        // Logado
+                        <div className='mt-3 grid gap-3'>
+                            {/* O WalletConnectButton já tem skeleton interno para o estado 'não montado' */}
+                            <WalletConnectButton className='w-full' />
 
-                            {/* 🔹 Passa o estado da conexão para desabilitar o botão */}
-                            <ReviewForm onSubmitReview={handleSubmitMock} isConnected={isConnected} />
+                            <ReviewForm
+                                onSubmitReview={handleSubmitMock}
+                                isConnected={mounted && isConnected}
+                                isMounted={mounted}
+                            />
 
-                            <p className="mt-2 text-xs text-muted-foreground">
+                            <p className='mt-2 text-xs text-muted-foreground'>
                                 * Esta ação é apenas um mock — nada será salvo ainda.
                             </p>
                         </div>
