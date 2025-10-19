@@ -60,16 +60,16 @@ model Category {
 model Point {
   id                Int      @id @default(autoincrement()) // pointId canônico
   name              String
-  description       String?
+  description       String
   city              String
   country           String
-  photoUrl          String?
-  categoryId        Int?
+  photoUrl          String
+  categoryId        Int
   onchainRegistered Boolean  @default(false)
   onchainTxHash     String?
   createdAt         DateTime @default(now())
 
-  category Category? @relation(fields: [categoryId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
   reviews  Review[]
   sbtMints SbtMint[] // relação com SbtMint.point
 }

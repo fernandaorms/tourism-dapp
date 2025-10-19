@@ -1,48 +1,52 @@
-"use client";
-import { useEffect, useState } from "react";
-import { Hero } from "@/components/containers/Hero";
-import { FiltersMenu, type FiltersState } from "@/components/layout/Filters";
-import { PointCard, type PointCardProps } from "@/components/layout/PointCard";
+'use server';
 
-// mocks temporários – substitua por fetch/Server Component
-const mockCategories = [
-    { id: 1, name: "Monumento" },
-    { id: 2, name: "Patrimônio Histórico" },
-    { id: 3, name: "Sítio Arqueológico" },
-];
+import { prisma } from '@/lib/prisma';
+import HomeClient from '@/components/containers/HomeClient';
 
-const mockPoints: PointCardProps[] = [
-    { id: 1, name: "Arcos da Lapa", city: "Rio de Janeiro", country: "Brasil", description: "Cartão-postal histórico.", category: { id: 2, name: "Patrimônio Histórico" }, ratingAvg: 8.6, ratingCount: 128, photoUrl: "/placeholder.jpg" },
-    { id: 2, name: "Museu do Amanhã", city: "Rio de Janeiro", country: "Brasil", description: "Museu de ciências aplicadas.", category: { id: 4, name: "Museu" }, ratingAvg: 9.1, ratingCount: 203, photoUrl: "/placeholder.jpg" },
-];
+export default async function Home() {
+    // search categories
+    const categories = await prisma.category.findMany({
+        select: { id: true, name: true },
+        orderBy: { name: 'asc' },
+    });
 
-export default function Home() {
-    const [query, setQuery] = useState("");
-    const [filters, setFilters] = useState<FiltersState>({});
-    const [items, setItems] = useState<PointCardProps[]>(mockPoints);
+    // search points
+    const points = await prisma.point.findMany({
+        select: {
+            id: true,
+            name: true,
+            description: true,
+            city: true,
+            country: true,
+            photoUrl: true,
+            category: { select: { id: true, name: true } },
+            reviews: { select: { rating: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+    });
 
-    useEffect(() => {
-        // filtro local simplificado
-        const q = query.toLowerCase();
-        let arr = mockPoints.filter((p) =>
-            [p.name, p.city, p.country, p.category?.name].some((v) => (v ?? "").toLowerCase().includes(q))
-        );
-        if (filters.categoryId) arr = arr.filter((p) => String(p.category?.id) === filters.categoryId);
-        if (typeof filters.minRating === "number") arr = arr.filter((p) => (p.ratingAvg ?? 0) >= filters.minRating!);
-        setItems(arr);
-    }, [query, filters]);
+    // convert rating (ratingAvg / ratingCount)
+    const items = points.map((p) => {
+        const count = p.reviews.length;
+        const avg =
+            count > 0
+                ? Number(
+                    (p.reviews.reduce((acc, r) => acc + r.rating, 0) / count).toFixed(1)
+                )
+                : 0;
 
-    return (
-        <div className="space-y-4">
-            <Hero onSearch={setQuery} />
-            <FiltersMenu categories={mockCategories} value={filters} onChange={setFilters} />
-            <section className="container mx-auto px-4 pb-12">
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {items.map((p) => (
-                        <PointCard key={p.id} {...p} />
-                    ))}
-                </div>
-            </section>
-        </div>
-    );
+        return {
+            id: p.id,
+            name: p.name,
+            description: p.description ?? '',
+            city: p.city,
+            country: p.country,
+            photoUrl: p.photoUrl ?? '',
+            category: p.category ? { id: p.category.id, name: p.category.name } : undefined,
+            ratingAvg: avg,
+            ratingCount: count,
+        };
+    });
+
+    return <HomeClient categories={categories} initialItems={items} />;
 }

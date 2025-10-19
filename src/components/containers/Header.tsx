@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { HeaderNav } from '../menus/HeaderNav';
 import { HeaderNavMobile } from '../menus/HeaderNavMobile';
 import { UserMenu } from '../menus/UserMenu';
-import { WalletButton } from '../buttons/WalletButton';
+import { WalletConnectButton } from '../buttons/WalletConnectButton';
 
 
 export async function Header() {
@@ -48,7 +48,7 @@ export async function Header() {
                         </>
                     ) : (
                         <>
-                            <WalletButton />
+                            <WalletConnectButton compact />
                             <UserMenu username={session.user.name} />
                         </>
                     )}

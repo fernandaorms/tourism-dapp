@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { WalletButton } from '@/components/buttons/WalletButton';
 import { signOut } from 'next-auth/react';
+import { WalletConnectButton } from '../buttons/WalletConnectButton';
 
 type NavLink = { href: string; label: string };
 type Props = { nav: NavLink[]; isLogged: boolean; username?: string; role?: 'USER' | 'ADMIN' };
@@ -64,7 +65,7 @@ export function HeaderNavMobile({ nav, isLogged, role }: Props) {
                         </div>
                     ) : (
                         <div className='grid gap-2'>
-                            <WalletButton className='w-full' />
+                            <WalletConnectButton compact />
 
                             <Link
                                 href='/perfil'

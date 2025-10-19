@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Providers from "./providers";
 import { Header } from '@/components/containers/Header';
 import './globals.css';
 import { Footer } from '@/components/containers/Footer';
@@ -19,15 +20,17 @@ export default function RootLayout({
             <body
                 className={`min-h-screen bg-background text-foreground antialiased`}
             >
-                <div className='flex min-h-screen flex-col'>
-                    <Header />
+                <Providers>
+                    <div className='flex min-h-screen flex-col'>
+                        <Header />
 
-                    <main className='flex-1'>{children}</main>
+                        <main className='flex-1'>{children}</main>
 
-                    <Footer />
-                </div>
+                        <Footer />
+                    </div>
 
-                <Toaster richColors closeButton />
+                    <Toaster richColors closeButton />
+                </Providers>
             </body>
         </html>
     );
