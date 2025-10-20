@@ -10,8 +10,6 @@ import { WalletConnectButton } from '../buttons/WalletConnectButton';
 export async function Header() {
     const session = await auth();
 
-    console.log(session);
-
     const isLogged = Boolean(session?.user);
     const username = session?.user?.name ?? '';
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,11 +1,20 @@
-import { notFound } from 'next/navigation'
-import Image from 'next/image'
-import { prisma } from '@/lib/prisma'
-import { PointDetailClient } from './PointDetailClient'
+import { notFound } from 'next/navigation';
+import Image from 'next/image';
+import { prisma } from '@/lib/prisma';
+import { auth } from '@/auth';
+import { PointDetailClient } from './PointDetailClient';
 
-export default async function PointPage({ params }: { params: { id: string } }) {
-    const pointId = Number(params.id)
-    if (Number.isNaN(pointId)) return notFound()
+export default async function PointPage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const { id } = await params;
+    const pointId = Number(id);
+    if (Number.isNaN(pointId)) return notFound();
+
+    const session = await auth();
+    const isLoggedIn = !!session?.user;
 
     const point = await prisma.point.findUnique({
         where: { id: pointId },
@@ -21,25 +30,19 @@ export default async function PointPage({ params }: { params: { id: string } }) 
                 },
             },
         },
-    })
+    });
 
-    if (!point) return notFound()
+    if (!point) return notFound();
 
-    const ratingCount = point.reviews.length
+    const ratingCount = point.reviews.length;
     const ratingAvg = ratingCount
         ? Number((point.reviews.reduce((a, r) => a + r.rating, 0) / ratingCount).toFixed(1))
-        : 0
+        : 0;
 
     return (
         <div className='flex flex-col'>
             <div className='relative h-72 md:h-96 w-full'>
-                <Image
-                    src={point.photoUrl}
-                    alt={point.name}
-                    fill
-                    className='object-cover'
-                    priority
-                />
+                <Image src={point.photoUrl} alt={point.name} fill className='object-cover' priority />
                 <div className='absolute inset-0 bg-gradient-to-t from-black/40 to-transparent' />
             </div>
 
@@ -48,14 +51,13 @@ export default async function PointPage({ params }: { params: { id: string } }) 
                     <h1 className='text-2xl md:text-3xl font-bold tracking-tight'>{point.name}</h1>
                     <div className='mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground'>
                         <span>{point.city}, {point.country}</span>
-                        {point.category && (
-                            <span className='rounded-md border px-2 py-0.5'>{point.category.name}</span>
-                        )}
+                        {point.category && <span className='rounded-md border px-2 py-0.5'>{point.category.name}</span>}
                         <span>★ {ratingAvg} · {ratingCount} avaliações</span>
                     </div>
                 </header>
 
                 <PointDetailClient
+                    isLoggedIn={isLoggedIn}
                     point={{
                         id: point.id,
                         name: point.name,
@@ -78,5 +80,5 @@ export default async function PointPage({ params }: { params: { id: string } }) 
                 />
             </div>
         </div>
-    )
+    );
 }

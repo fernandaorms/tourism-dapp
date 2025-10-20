@@ -1,8 +1,8 @@
+// components/point/PointDetailClient.tsx
 'use client';
 
 import Link from 'next/link';
-import { useState, useMemo } from 'react';
-import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 import { useAccount, useChainId } from 'wagmi';
 import { ReviewForm } from '@/components/forms/ReviewForm';
 import { WalletConnectButton } from '@/components/buttons/WalletConnectButton';
@@ -21,11 +21,11 @@ type ReviewItem = {
     onchainTxHash?: string;
 };
 
-type SubmitResult = { ok: boolean; message?: string };
-
 export function PointDetailClient({
+    isLoggedIn,
     point,
 }: {
+    isLoggedIn: boolean;
     point: {
         id: number;
         name: string;
@@ -39,31 +39,22 @@ export function PointDetailClient({
     };
 }) {
     const mounted = useMounted();
-
-    // status: 'loading' | 'authenticated' | 'unauthenticated'
-    const { data: session, status: sessionStatus } = useSession();
-    const { isConnected } = useAccount();
+    const { status: accountStatus, isConnected } = useAccount();
     const chainId = useChainId();
 
     const [reviews] = useState<ReviewItem[]>(point.reviews);
     const [ratingAvg] = useState<number>(point.ratingAvg);
     const [ratingCount] = useState<number>(point.ratingCount);
 
-    const isLoggedIn = useMemo(() => Boolean(session?.user), [session?.user]);
-    const networkLabel = chainId === 11155111 ? 'Sepolia' : `Chain ${chainId ?? 'desconhecida'}`;
+    const networkLabel =
+        chainId === 11155111 ? 'Sepolia' : `Chain ${chainId ?? 'desconhecida'}`;
 
-    function handleSubmitMock(values: { rating: number; comment: string }): SubmitResult {
-        if (!isLoggedIn) return { ok: false, message: 'Faça login para avaliar.' };
-        if (!isConnected) return { ok: false, message: 'Conecte sua carteira para avaliar.' };
-        if (chainId !== 11155111) return { ok: false, message: `Rede incorreta. Conecte-se à ${networkLabel}.` };
-        return { ok: true };
-    }
-
-    const showAuthSkeleton = !mounted || sessionStatus === 'loading';
+    const showWalletSkeleton =
+        !mounted || accountStatus === 'connecting' || accountStatus === 'reconnecting';
 
     return (
         <div className='grid gap-8 md:grid-cols-[1fr_minmax(280px,360px)]'>
-
+            {/* Esquerda */}
             <div className='grid gap-8'>
                 <section>
                     <h2 className='text-lg font-semibold'>Descrição</h2>
@@ -76,61 +67,43 @@ export function PointDetailClient({
                     <div className='flex items-center justify-between'>
                         <h2 className='text-lg font-semibold'>Avaliações ({ratingCount}) · ★ {ratingAvg}</h2>
                     </div>
-
                     <div className='mt-4 grid gap-4'>
                         {reviews.length === 0 && (
                             <p className='text-sm text-muted-foreground'>Ainda não há avaliações para este ponto.</p>
                         )}
-                        {reviews.map((r) => (
-                            <ReviewCard key={r.id} review={r} />
-                        ))}
+                        {reviews.map((r) => (<ReviewCard key={r.id} review={r} />))}
                     </div>
                 </section>
             </div>
 
+            {/* Direita: sidebar */}
             <aside className='md:pl-4 lg:pl-8'>
                 <div className='sticky top-24 rounded-lg border p-4'>
                     <h3 className='text-base font-semibold'>Deixe sua avaliação</h3>
 
-                    {showAuthSkeleton ? (
-                        <div className='mt-3 grid gap-3'>
-                            <Skeleton className='h-10 w-full rounded-md' />
-
-                            <Skeleton className='h-24 w-full rounded-md' />
-
-                            <Skeleton className='h-10 w-full rounded-md' />
-
-                            <p className='mt-2 text-xs text-muted-foreground'>
-                                Carregando sessão…
-                            </p>
-                        </div>
-                    ) : !isLoggedIn ? (
+                    {!isLoggedIn ? (
                         <div className='mt-3 text-sm'>
-                            <p className='text-muted-foreground'>
-                                Você precisa estar logado para avaliar este ponto.
-                            </p>
-
+                            <p className='text-muted-foreground'>Você precisa estar logado para avaliar este ponto.</p>
                             <Button asChild className='mt-3 w-full'>
                                 <Link href='/login'>Fazer login</Link>
                             </Button>
-
                             <p className='mt-2 text-xs text-muted-foreground'>
                                 Após o login, conecte sua carteira MetaMask (Sepolia) e envie sua avaliação.
                             </p>
                         </div>
+                    ) : showWalletSkeleton ? (
+                        <div className='mt-3 grid gap-3'>
+                            <Skeleton className='h-10 w-full rounded-md' />
+                            <Skeleton className='h-24 w-full rounded-md' />
+                        </div>
                     ) : (
                         <div className='mt-3 grid gap-3'>
                             <WalletConnectButton className='w-full' />
-
                             <ReviewForm
-                                onSubmitReview={handleSubmitMock}
+                                onSubmitReview={() => ({ ok: isConnected && chainId === 11155111 })}
                                 isConnected={mounted && isConnected}
                                 isMounted={mounted}
                             />
-
-                            <p className='mt-2 text-xs text-muted-foreground'>
-                                * Esta ação é apenas um mock — nada será salvo ainda.
-                            </p>
                         </div>
                     )}
                 </div>
