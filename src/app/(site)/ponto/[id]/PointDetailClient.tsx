@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     useAccount,
     useChainId,
@@ -18,6 +18,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useMounted } from '@/hooks/useMounted';
 import { REVIEW_SBT_ADDRESS, reviewSbtAbi } from '@/chain/reviewSbt';
 import { createReviewAction } from '@/app/actions/createReviewAction';
+import { hasReviewAction } from '@/app/actions/hasReviewAction';
 
 type ReviewItem = {
     id: number;
@@ -56,13 +57,27 @@ export function PointDetailClient({
     const chainId = useChainId();
     const publicClient = usePublicClient();
     const { writeContractAsync } = useWriteContract();
+    const [walletHasReview, setWalletHasReview] = useState(false);
 
-    const [reviews] = useState<ReviewItem[]>(point.reviews);
-    const [ratingAvg] = useState<number>(point.ratingAvg);
-    const [ratingCount] = useState<number>(point.ratingCount);
+    const reviews = point.reviews;
+    const ratingAvg = point.ratingAvg;
+    const ratingCount = point.ratingCount;
 
-    const showWalletSkeleton =
-        !mounted || accountStatus === 'connecting' || accountStatus === 'reconnecting';
+    const showWalletSkeleton = !mounted || accountStatus === 'connecting' || accountStatus === 'reconnecting';
+
+    useEffect(() => {
+        async function check() {
+            if (!address) {
+                setWalletHasReview(false);
+                return;
+            }
+
+            const res = await hasReviewAction(point.id, address);
+            setWalletHasReview(res.hasReview);
+        }
+
+        check();
+    }, [address, point.id]);
 
     async function handleSubmitReview(
         values: ReviewFormValues
@@ -100,6 +115,13 @@ export function PointDetailClient({
                 return {
                     ok: false,
                     message: 'Cliente público da blockchain indisponível.',
+                };
+            }
+
+            if (walletHasReview) {
+                return {
+                    ok: false,
+                    message: 'Você já avaliou este ponto com esta carteira.',
                 };
             }
 
@@ -218,12 +240,25 @@ export function PointDetailClient({
                         </div>
                     ) : (
                         <div className='mt-3 grid gap-3'>
-                            <WalletConnectButton className='w-full' />
-                            <ReviewForm
-                                onSubmitReview={handleSubmitReview}
-                                isConnected={mounted && isConnected}
-                                isMounted={mounted}
-                            />
+                            {walletHasReview ? (
+                                <>
+                                    <WalletConnectButton className='w-full' />
+
+                                    <p className="text-sm text-muted-foreground">
+                                        Você já avaliou este ponto com esta carteira.<br /><br />
+                                        Para enviar outra avaliação, conecte uma conta diferente.
+                                    </p>
+                                </>
+                            ) : (
+                                <>
+                                    <WalletConnectButton className='w-full' />
+                                    <ReviewForm
+                                        onSubmitReview={handleSubmitReview}
+                                        isConnected={mounted && isConnected}
+                                        isMounted={mounted}
+                                    />
+                                </>
+                            )}
                         </div>
                     )}
                 </div>

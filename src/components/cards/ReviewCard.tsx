@@ -39,7 +39,7 @@ export function ReviewCard({
                 <span className='rounded border px-1.5 py-0.5 font-mono'>{shortWallet}</span>
                 {review.onchainTxHash && (
                     <Link
-                        href={`https://etherscan.io/tx/${review.onchainTxHash}`}
+                        href={`https://sepolia.etherscan.io/tx/${review.onchainTxHash}`}
                         className='underline underline-offset-4'
                         target='_blank'
                         rel='noreferrer'
