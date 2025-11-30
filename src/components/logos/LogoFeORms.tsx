@@ -12,7 +12,7 @@ export const LogoFeORms = ({ heightClass = 'h-5' }: Props) => {
                 href={'/'}
             >
                 <Image
-                    src={'logo-feorms.svg'}
+                    src={'/logo-feorms.svg'}
                     priority
                     alt='Logo fernandaorms'
                     height={24}

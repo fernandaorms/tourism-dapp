@@ -41,7 +41,7 @@ export async function createPointAction(input: unknown) {
             description: data.description,
             city: data.city,
             country: data.country,
-            photoUrl: data.photoUrl || null,
+            photoUrl: data.photoUrl,
             categoryId: data.categoryId,
             onchainRegistered: false,
         },
