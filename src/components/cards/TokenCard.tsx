@@ -42,7 +42,7 @@ export function TokenCard({
                             >
                                 Soulbound Token
                             </span>
-                            <p className='font-mono text-xs text-muted-foreground'>{tokenId}</p>
+                            <p className='font-mono text-xs text-muted-foreground'>#ID: {tokenId}</p>
                         </div>
                     </div>
                 </div>

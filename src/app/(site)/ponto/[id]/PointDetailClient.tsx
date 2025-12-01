@@ -150,8 +150,7 @@ export function PointDetailClient({
             if (!log) {
                 return {
                     ok: false,
-                    message:
-                        'Não foi possível encontrar o evento de review na transação.',
+                    message: 'Não foi possível encontrar o evento de review na transação.',
                 };
             }
 
