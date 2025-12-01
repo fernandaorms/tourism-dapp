@@ -1,4 +1,3 @@
-// app/admin/page.tsx
 import { prisma } from '@/lib/prisma';
 import { NewPointForm } from '@/components/forms/NewPointForm';
 
