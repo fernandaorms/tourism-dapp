@@ -8,7 +8,7 @@ contract TourismReviewsSBT is ERC721 {
         uint256 pointId;      // ID do ponto turístico (espelha Point.id)
         address reviewer;     // carteira que avaliou (espelha Review.walletAddress)
         uint8 rating;         // nota 0..10 (espelha Review.rating)
-        bytes32 reviewHash;   // hash do conteúdo off-chain (espelha Review.reviewHash)
+        bytes32 reviewHash;   // hash off-chain (espelha Review.reviewHash)
         uint256 timestamp;    // momento em que foi gravado
     }
 
