@@ -110,6 +110,7 @@ export default function TokensPage() {
 
                 const data = (await res.json()) as { tokens: TokenDto[] };
                 setTokens(data.tokens);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (e: any) {
                 console.error(e);
                 setError(e?.message ?? 'Erro ao carregar tokens.');
