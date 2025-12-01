@@ -1,5 +1,6 @@
-import { auth } from '@/auth';
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
 export const config = {
     matcher: [
@@ -7,32 +8,51 @@ export const config = {
         '/signup',
         '/admin',
         '/perfil',
-        '/tokens'
-    ]
+        '/tokens',
+    ],
 };
 
-export default auth((req) => {
-    const { user } = req.auth ?? {};
+export async function middleware(req: NextRequest) {
+    const { pathname, origin } = req.nextUrl;
+    
+    const token = await getToken({
+        req,
+        secret: process.env.AUTH_SECRET,
+    });
 
-    if (req.nextUrl.pathname.startsWith('/login')) {
-        if (user?.id) return NextResponse.redirect(new URL("/", req.nextUrl.origin));
+    const isLoggedIn = !!token;
+
+    const role =
+        (token as any)?.role ??
+        (token as any)?.user?.role ??
+        null;
+
+    if (pathname.startsWith('/login')) {
+        if (isLoggedIn) {
+            return NextResponse.redirect(new URL('/', origin));
+        }
         return NextResponse.next();
     }
 
-    if (req.nextUrl.pathname.startsWith('/signup')) {
-        if (user?.id) return NextResponse.redirect(new URL("/", req.nextUrl.origin));
+    if (pathname.startsWith('/signup')) {
+        if (isLoggedIn) {
+            return NextResponse.redirect(new URL('/', origin));
+        }
         return NextResponse.next();
     }
 
-    // Block access - not auth user
-    if (!user) {
-        return NextResponse.redirect(new URL('/login', req.nextUrl.origin));
+    const isProtected =
+        pathname.startsWith('/admin') ||
+        pathname.startsWith('/perfil') ||
+        pathname.startsWith('/tokens');
+
+    if (isProtected && !isLoggedIn) {
+        return NextResponse.redirect(new URL('/login', origin));
     }
 
-    // Block access - not admin user
-    if (req.nextUrl.pathname.startsWith('/admin') && user.role !== 'ADMIN') {
-        return NextResponse.redirect(new URL('/unauthorized', req.nextUrl.origin));
+    if (pathname.startsWith('/admin') && role !== 'ADMIN') {
+        return NextResponse.redirect(new URL('/unauthorized', origin));
     }
 
     return NextResponse.next();
-});
+}
