@@ -160,6 +160,7 @@ export function PointDetailClient({
                 topics: log.topics,
             });
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const args = decoded.args as any;
             const tokenId: bigint = args.tokenId;
 
@@ -175,6 +176,7 @@ export function PointDetailClient({
             });
 
             return { ok: true };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             console.error(err);
             return {

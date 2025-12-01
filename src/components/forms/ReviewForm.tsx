@@ -10,7 +10,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
 
 const schema = z.object({
     rating: z.number().int().min(0).max(10),
@@ -31,7 +30,6 @@ export function ReviewForm({
     isMounted?: boolean;
     defaultRating?: number;
 }) {
-    const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const form = useForm<Values>({
         resolver: zodResolver(schema),
@@ -49,7 +47,7 @@ export function ReviewForm({
                 toast.success('Avaliação enviada');
                 form.reset({ rating: defaultRating, comment: '' });
 
-                router.refresh();
+                window.location.reload();
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (e: any) {
                 toast.error(e?.message ?? 'Erro ao enviar avaliação');
