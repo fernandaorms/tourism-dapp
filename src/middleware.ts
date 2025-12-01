@@ -14,10 +14,10 @@ export const config = {
 
 export async function middleware(req: NextRequest) {
     const { pathname, origin } = req.nextUrl;
-    
+
     const token = await getToken({
         req,
-        secret: process.env.AUTH_SECRET,
+        secret: process.env.NEXTAUTH_SECRET,
     });
 
     const isLoggedIn = !!token;
