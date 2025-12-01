@@ -33,22 +33,8 @@ model AppUser {
   passwordHash String
   role         Role     @default(USER)
   createdAt    DateTime @default(now())
-
-  wallets UserWallet[]
+  
   reviews Review[]
-}
-
-model UserWallet {
-  id         Int       @id @default(autoincrement())
-  userId     Int
-  address    String
-  verifiedAt DateTime?
-  siweNonce  String?
-
-  user AppUser @relation(fields: [userId], references: [id])
-
-  @@unique([userId, address])
-  @@index([address])
 }
 
 model Category {
